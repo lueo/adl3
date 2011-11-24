@@ -77,7 +77,7 @@ def get_adapter_info():
         
         # save it in our list if it's the first controller of the adapter
         if (found == False):
-            devices.append(deviceAdapter(index,adapterID,busNum,udid))
+            devices.append(deviceAdapter(index, adapterID, busNum, udid))
     
     for device in devices:
         adapter_info.append(AdapterInfoArray[device.AdapterIndex])
@@ -97,13 +97,13 @@ def list_adapters(adapter_list=None):
             if ADL_Overdrive5_ODParameters_Get(info.iAdapterIndex, byref(od_parameters)) != ADL_OK:
                 raise ADLError("ADL_Overdrive5_ODParameters_Get failed.")
                 
-            print "    engine clock range is %g - %gMHz" % (od_parameters.sEngineClock.iMin/100.0,od_parameters.sEngineClock.iMax/100.0)
-            print "    memory clock range is %g - %gMHz" % (od_parameters.sMemoryClock.iMin/100.0, od_parameters.sMemoryClock.iMax/100.0)
-            print "    core voltage range is %g - %gVDC" % (od_parameters.sVddc.iMin/1000.0, od_parameters.sVddc.iMax/1000.0)
+            print "    engine clock range is %g - %gMHz" % (od_parameters.sEngineClock.iMin / 100.0, od_parameters.sEngineClock.iMax / 100.0)
+            print "    memory clock range is %g - %gMHz" % (od_parameters.sMemoryClock.iMin / 100.0, od_parameters.sMemoryClock.iMax / 100.0)
+            print "    core voltage range is %g - %gVDC" % (od_parameters.sVddc.iMin / 1000.0, od_parameters.sVddc.iMax / 1000.0)
     
             if od_parameters.iDiscretePerformanceLevels:
                 plevels = ADLODPerformanceLevels()
-                plevels_size = sizeof(ADLODPerformanceLevels) + sizeof(ADLODPerformanceLevel) * (od_parameters.iNumberOfPerformanceLevels -1)
+                plevels_size = sizeof(ADLODPerformanceLevels) + sizeof(ADLODPerformanceLevel) * (od_parameters.iNumberOfPerformanceLevels - 1)
                 resize(plevels, plevels_size)
                 plevels.iSize = plevels_size
         
@@ -114,9 +114,9 @@ def list_adapters(adapter_list=None):
         
                 for index in range(0, od_parameters.iNumberOfPerformanceLevels):
                     print "    performance level %d: engine clock %gMHz, memory clock %gMHz, core voltage %gVDC" % (index,
-                                                                                                                levels[index].iEngineClock/100.0,
-                                                                                                                levels[index].iMemoryClock/100.0,
-                                                                                                                levels[index].iVddc/1000.0)
+                                                                                                                levels[index].iEngineClock / 100.0,
+                                                                                                                levels[index].iMemoryClock / 100.0,
+                                                                                                                levels[index].iVddc / 1000.0)
 
             fan_speed_info = ADLFanSpeedInfo()
             fan_speed_info.iSize = sizeof(fan_speed_info)
@@ -124,9 +124,8 @@ def list_adapters(adapter_list=None):
             if ADL_Overdrive5_FanSpeedInfo_Get(info.iAdapterIndex, 0, byref(fan_speed_info)) != ADL_OK:
                 raise ADLError("ADL_Overdrive5_FanSpeedInfo_Get failed.")
             
-            print "    fan speed range: %d - %d%%,  %d - %d RPM" % (fan_speed_info.iMinPercent, fan_speed_info.iMaxPercent, 
+            print "    fan speed range: %d - %d%%,  %d - %d RPM" % (fan_speed_info.iMinPercent, fan_speed_info.iMaxPercent,
                                                                     fan_speed_info.iMinRPM, fan_speed_info.iMaxRPM)
-
 
             
 def show_status(adapter_list=None):
@@ -143,7 +142,7 @@ def show_status(adapter_list=None):
                 raise ADLError("ADL_Overdrive5_CurrentActivity_Get failed.")
             
             print ("    engine clock %gMHz, memory clock %gMHz, core voltage %gVDC, performance level %d, utilization %d%%" % 
-                        (activity.iEngineClock/100.0, activity.iMemoryClock/100.0, activity.iVddc/1000.0,
+                        (activity.iEngineClock / 100.0, activity.iMemoryClock / 100.0, activity.iVddc / 1000.0,
                          activity.iCurrentPerformanceLevel, activity.iActivityPercent))
                 
             try:
@@ -154,16 +153,25 @@ def show_status(adapter_list=None):
                     fan_speed_value.iSpeedType = speed_type
             
                     if ADL_Overdrive5_FanSpeed_Get(info.iAdapterIndex, 0, byref(fan_speed_value)) != ADL_OK:
-                        raise ADLError("ADL_Overdrive5_FanSpeed_Get failed.")
+                        fan_speed[speed_type] = None
+                        raise ADLError
             
                     fan_speed[speed_type] = fan_speed_value.iFanSpeed
                     user_defined = fan_speed_value.iFlags & ADL_DL_FANCTRL_FLAG_USER_DEFINED_SPEED
         
-                print "    fan speed %d%% (%d RPM) (%s)" % (fan_speed[ADL_DL_FANCTRL_SPEED_TYPE_PERCENT],
-                                                             fan_speed[ADL_DL_FANCTRL_SPEED_TYPE_RPM],
-                                                             "user-defined" if user_defined else "default")
             except ADLError:
-                print "    unable to get fan speed"
+                if bool(fan_speed[ADL_DL_FANCTRL_SPEED_TYPE_PERCENT]) and bool(fan_speed[ADL_DL_FANCTRL_SPEED_TYPE_RPM]):
+                    print "    fan speed %d%% (%d RPM) (%s)" % (fan_speed[ADL_DL_FANCTRL_SPEED_TYPE_PERCENT],
+                                                                fan_speed[ADL_DL_FANCTRL_SPEED_TYPE_RPM],
+                                                                "user-defined" if user_defined else "default")
+                elif bool(fan_speed[ADL_DL_FANCTRL_SPEED_TYPE_PERCENT]) is True:
+                    print "    fan speed %d%% (%s)" % (fan_speed[ADL_DL_FANCTRL_SPEED_TYPE_PERCENT],
+                                                       "user-defined" if user_defined else "default")
+                elif bool(fan_speed[ADL_DL_FANCTRL_SPEED_TYPE_RPM]) is True:
+                    print "    fan speed %d RPM (%s)" % (fan_speed[ADL_DL_FANCTRL_SPEED_TYPE_RPM],
+                                                       "user-defined" if user_defined else "default")
+                else:    
+                    print "    unable to get fan speed."
                 
             temperature = ADLTemperature()
             temperature.iSize = sizeof(temperature)
@@ -171,7 +179,7 @@ def show_status(adapter_list=None):
             if ADL_Overdrive5_Temperature_Get(info.iAdapterIndex, 0, byref(temperature)) != ADL_OK:
                 raise ADLError("ADL_Overdrive5_Temperature_Get failed.")
             
-            print "    temperature %g C" % (temperature.iTemperature/1000.0)
+            print "    temperature %g C" % (temperature.iTemperature / 1000.0)
             
             # Powertune level
             powertune_level_value = c_int()
@@ -181,9 +189,6 @@ def show_status(adapter_list=None):
                 raise ADLError("ADL_Overdrive5_PowerControl_Get failed.")
 
             print "    Powertune %d%%" % (powertune_level_value.value)
-            
-            
-
 
 def set_plevels(adapter_list=None,
                 plevel_list=None,
@@ -202,7 +207,7 @@ def set_plevels(adapter_list=None,
                 
             if od_parameters.iDiscretePerformanceLevels:
                 plevels = ADLODPerformanceLevels()
-                plevels_size = sizeof(ADLODPerformanceLevels) + sizeof(ADLODPerformanceLevel) * (od_parameters.iNumberOfPerformanceLevels -1)
+                plevels_size = sizeof(ADLODPerformanceLevels) + sizeof(ADLODPerformanceLevel) * (od_parameters.iNumberOfPerformanceLevels - 1)
                 resize(plevels, plevels_size)
                 plevels.iSize = plevels_size
         
@@ -216,13 +221,13 @@ def set_plevels(adapter_list=None,
                         message = []
                         
                         if engine_clock is not None:
-                            levels[plevel_index].iEngineClock = int(engine_clock*100.0)
+                            levels[plevel_index].iEngineClock = int(engine_clock * 100.0)
                             message.append("engine clock %gMHz" % engine_clock)
                         if memory_clock is not None:
-                            levels[plevel_index].iMemoryClock = int(memory_clock*100.0)
+                            levels[plevel_index].iMemoryClock = int(memory_clock * 100.0)
                             message.append("memory clock %gMHz" % memory_clock)
                         if core_voltage is not None:
-                            levels[plevel_index].iVddc = int(core_voltage*1000.0)
+                            levels[plevel_index].iVddc = int(core_voltage * 1000.0)
                             message.append("core voltage %gVDC" % core_voltage)
                         
                         print "Setting performance level %d on adapter %d: %s" % (plevel_index,
@@ -320,7 +325,7 @@ if __name__ == "__main__":
                            "select all the adapters. If --adapter is missing, all adapters "
                            "will be affected.")
     
-    parser.add_option("-P", "--performance-level", dest="plevel", default="all", 
+    parser.add_option("-P", "--performance-level", dest="plevel", default="all",
                       metavar="PERFORMANCELEVELLIST",
                       help="Selects which performance levels returned by --list-adapters should be "
                            "affected by other atitweak options. PERFORMANCELEVELLIST contains either "
