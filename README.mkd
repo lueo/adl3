@@ -1,0 +1,53 @@
+This package wraps the AMD Display Library 3.0 [1] using ctypes. You do *not* need to install the
+SDK to use this package, and no compilation is required.
+
+WARNING! This software can damage or destroy your graphics card if used incorrectly. 
+
+
+```
+Usage: atitweak [options]
+
+Options:
+  -h, --help            show this help message and exit
+  -l, --list-adapters   Lists all detected and supported display adapters.
+  -s, --status          Shows current clock speeds, core voltage, utilization
+                        and performance level.
+  -e ENGINE_CLOCK, --set-engine-clock=ENGINE_CLOCK
+                        Sets engine clock speed (in MHz) for the selected
+                        performance levels on the selected adapters.
+  -m MEMORY_CLOCK, --set-memory-clock=MEMORY_CLOCK
+                        Sets memory clock speed (in MHz) for the selected
+                        peformance levels on the selected adapters.
+  -v CORE_VOLTAGE, --set-core-voltage=CORE_VOLTAGE
+                        Sets core voltage level (in VDC) for the selected
+                        performance levels on the selected adapters.
+  -f FAN_SPEED, --set-fan-speed=FAN_SPEED
+                        Sets the fan speed (in percent) for the selected
+                        adapters.
+  -d, --set-fan-speed-default
+                        Resets the fan speed to its default setting.
+  -A ADAPTERLIST, --adapter=ADAPTERLIST
+                        Selects which adapters returned by --list-adapters
+                        should be affected by other atitweak options.
+                        ADAPTERLIST contains either a comma-seperated sequence
+                        of the index numbers of the adapters to be affected or
+                        else contains the keyword "all" to select all the
+                        adapters. If --adapter is missing, all adapters will
+                        be affected.
+  -P PERFORMANCELEVELLIST, --performance-level=PERFORMANCELEVELLIST
+                        Selects which performance levels returned by --list-
+                        adapters should be affected by other atitweak options.
+                        PERFORMANCELEVELLIST contains either a comma-separated
+                        sequence of the index numbers of the performance
+                        levels to be affected or else contains the keyword
+                        "all" to select all performance levels. If
+                        --performance-level is missing, all performance levels
+                        will be affected.
+  -p POWERTUNE_LEVEL, --set-powertune=POWERTUNE_LEVEL
+                        Sets powertune level (between -20% and 20%) for on the
+                        selected adapters.
+```
+
+Reference
+
+AMD Display Library 3.0 http://developer.amd.com/sdks/adlsdk/pages/default.aspx
